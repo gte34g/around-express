@@ -1,27 +1,95 @@
-const path = require('path');
-const getJsonFromFile = require('../helper/files');
+const Card = require('../models/card');
 
-const cardFilePath = path.join(__dirname, '..', 'data', 'cards.json');
-const getCards = (req, res) => {
-  getJsonFromFile(cardFilePath)
-    .then((cards) => res.send(cards))
-    .catch((err) => res.status(500).send(err));
+const {
+  ERROR_CODE,
+  NOT_FOUND_ERROR,
+  DEFAULT_ERROR_CODE,
+  PASSED_CODE,
+  CARD_NOT_FOUND,
+  INVALID_DATA,
+  DEFAULT_ERROR,
+} = require('../lib/errors');
+
+const getCards = async (req, res) => {
+  try {
+    const cards = await Card.find({});
+
+    res.send(cards);
+  } catch (err) {
+    res.send(DEFAULT_ERROR_CODE).send(err);
+  }
 };
 
-const getCardById = (req, res) => {
-  getJsonFromFile(cardFilePath)
-    .then((cards) => cards.find((card) => card._id === req.params._id))
-    .then((card) => {
-      if (card) {
-        res.send(card);
-        return;
+const createCard = (req, res) => {
+  Card.create({ ...req.body, owner: req.user._id })
+    .then((card) => res.status(PASSED_CODE).send(card))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
-      res.status(404).send({ message: 'Card ID not found' });
-    })
-    .catch((err) => res.status(500).send(err));
+    });
+};
+
+const deleteCardById = (req, res) => {
+  const { _id } = req.params;
+  Card.findByIdAndRemove(_id)
+    .orFail()
+    .then((card) => res.send(card))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
+      } else if (err.name === 'ShowError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
+};
+
+const likeCard = (req, res) => {
+  const cardId = req.params._id;
+  const userId = req.user._id;
+  Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: userId } },
+    { new: true },
+  )
+    .orFail()
+    .then((card) => res.status(PASSED_CODE).send(card))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
+      } else if (err.name === 'ShowError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
+};
+
+const disLikeCard = (req, res) => {
+  const cardId = req.params._id;
+  const userId = req.user._id;
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
+    .orFail()
+    .then((card) => res.send(card))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
+      } else if (err.name === 'ShowError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
 
 module.exports = {
   getCards,
-  getCardById,
+  createCard,
+  deleteCardById,
+  likeCard,
+  disLikeCard,
 };

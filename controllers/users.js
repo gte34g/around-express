@@ -1,27 +1,98 @@
-const path = require('path');
-const getJsonFromFile = require('../helper/files');
+const User = require('../models/user');
 
-const userFilePath = path.join(__dirname, '..', 'data', 'users.json');
-const getUsers = (req, res) => {
-  getJsonFromFile(userFilePath)
-    .then((users) => res.send(users))
-    .catch((err) => res.status(500).send(err));
+const {
+  ERROR_CODE,
+  NOT_FOUND_ERROR,
+  DEFAULT_ERROR_CODE,
+  USER_NOT_FOUND,
+  INVALID_DATA,
+  DEFAULT_ERROR,
+} = require('../lib/errors');
+
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    res.send(users);
+  } catch (err) {
+    res.send(DEFAULT_ERROR_CODE).send(err);
+  }
 };
 
-const getUserById = (req, res) => {
-  getJsonFromFile(userFilePath)
-    .then((users) => users.find((user) => user._id === req.params._id))
-    .then((user) => {
-      if (user) {
-        res.send(user);
-        return;
+const getUserById = async (req, res) => {
+  const { _id } = req.params;
+  User.findById(_id)
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
-      res.status(404).send({ message: 'User ID not found' });
-    })
-    .catch((err) => res.status(500).send(err));
+    });
+};
+
+const createUser = async (req, res) => {
+  try {
+    const newUser = await User.create(req.body);
+
+    res.send(newUser);
+  } catch (err) {
+    res.status(DEFAULT_ERROR_CODE).send(err);
+  }
+};
+
+const updateUser = (req, res) => {
+  const { _id } = req.user;
+  User.findByIdAndUpdate(
+    _id,
+    { name: req.body.name, about: req.body.about },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'ShowError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'Validation Error') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
+};
+
+const updateAvatar = (req, res) => {
+  const { _id } = req.user;
+  User.findByIdAndUpdate(
+    _id,
+    { avatar: req.body.avatar },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'ThereIsSomeError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'ShowError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'Validation Error') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
 
 module.exports = {
   getUsers,
   getUserById,
+  createUser,
+  updateUser,
+  updateAvatar,
 };
