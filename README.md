@@ -1,7 +1,7 @@
 # Around the U.S. Back End  
   
 ## Description
-In this project I received a database which had to upload to MongoDB, connect to the database to JavaScript file using Mongoose. Testing the server using Postman.
+In this project I've received a database which had to upload to MongoDB, connect to the database to JavaScript file using Mongoose. Testing the server using Postman.
 
 ### Directories
 `/controllers` - General functions files for getting users and cards.
