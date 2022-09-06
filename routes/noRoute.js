@@ -1,7 +1,5 @@
-const router = require('express').Router();
-
-router.get('*', (req, res) => {
-  res.status(404).send({ message: 'Requested resource not found' });
+const errorPage = ((req, res) => {
+  res.status(404).send({ message: ` Route ${req.url} Not found.` });
 });
 
-module.exports = router;
+module.exports = errorPage;
