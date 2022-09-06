@@ -23,7 +23,9 @@ app.use(bodyParser.json());
 app.use(helmet());
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-
+app.use((req, res) => {
+  res.status(404).send({ message: `Route ${req.url} Not found. ` });
+});
 app.use('*', noRoute);
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

@@ -24,7 +24,9 @@ const createCard = (req, res) => {
   Card.create({ ...req.body, owner: req.user._id })
     .then((card) => res.status(PASSED_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else if (err.name === 'Validation Error') {
         res.status(ERROR_CODE).send({ Error: err.message });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
@@ -38,9 +40,9 @@ const deleteCardById = (req, res) => {
     .orFail()
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
-      } else if (err.name === 'ShowError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
@@ -59,9 +61,9 @@ const likeCard = (req, res) => {
     .orFail()
     .then((card) => res.status(PASSED_CODE).send(card))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
-      } else if (err.name === 'ShowError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
@@ -76,9 +78,9 @@ const disLikeCard = (req, res) => {
     .orFail()
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: CARD_NOT_FOUND });
-      } else if (err.name === 'ShowError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });

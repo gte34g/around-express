@@ -25,7 +25,7 @@ const getUserById = async (req, res) => {
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
       } else if (err.name === 'CastError') {
         res.status(NOT_FOUND_ERROR).send({ Error: INVALID_DATA });
@@ -55,11 +55,11 @@ const updateUser = (req, res) => {
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'ShowError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
-      } else if (err.name === 'Validation Error') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ Error: err.message });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
@@ -77,9 +77,9 @@ const updateAvatar = (req, res) => {
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ThereIsSomeError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'ShowError') {
+      } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
       } else if (err.name === 'Validation Error') {
         res.status(ERROR_CODE).send({ Error: err.message });
