@@ -41,7 +41,11 @@ const createUser = async (req, res) => {
 
     res.send(newUser);
   } catch (err) {
-    res.status(DEFAULT_ERROR_CODE).send(err);
+    if (err.name === 'ValidationError') {
+      res.status(ERROR_CODE).send({ Error: err.message });
+    } else {
+      res.status(DEFAULT_ERROR_CODE).send(err);
+    }
   }
 };
 
@@ -81,7 +85,7 @@ const updateAvatar = (req, res) => {
         res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
       } else if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ Error: INVALID_DATA });
-      } else if (err.name === 'Validation Error') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ Error: err.message });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });

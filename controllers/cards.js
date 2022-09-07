@@ -26,7 +26,7 @@ const createCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         res.status(ERROR_CODE).send({ Error: err.message });
-      } else if (err.name === 'Validation Error') {
+      } else if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ Error: err.message });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
