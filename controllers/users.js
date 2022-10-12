@@ -1,3 +1,8 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const { JWT_SECRET } = process.env;
+
 const User = require('../models/user');
 
 const {
@@ -7,6 +12,8 @@ const {
   USER_NOT_FOUND,
   INVALID_DATA,
   DEFAULT_ERROR,
+  Unauthorize,
+  CONFLICT_ERROR,
 } = require('../lib/errors');
 
 const getUsers = async (req, res) => {
@@ -35,18 +42,33 @@ const getUserById = async (req, res) => {
     });
 };
 
-const createUser = async (req, res) => {
-  try {
-    const newUser = await User.create(req.body);
-
-    res.send(newUser);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE).send({ Error: err.message });
-    } else {
-      res.status(DEFAULT_ERROR_CODE).send(err);
-    }
-  }
+const createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new CONFLICT_ERROR('Email already exists');
+      }
+      return bcrypt.hash(password, 10);
+    })
+    .then((hash) =>
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }))
+    .then((user) => res.status(201).send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ERROR_CODE(err.message));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUser = (req, res) => {
@@ -93,10 +115,25 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      res.send({ data: user.toJSON(), token });
+    })
+    .catch(() => {
+      next(new Unauthorize('Incorrect email or password'));
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };
