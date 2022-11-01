@@ -26,20 +26,20 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-app.use(limiter);
-app.use(cors());
-app.options('*', cors());
-app.use(helmet());
-app.use(bodyParser.json());
 
 app.use(requestLogger);
+app.use(bodyParser.json());
+app.use(cors());
+app.options('*', cors());
+
+app.use(helmet());
+app.use(limiter);
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUser, createUser);
 
 app.use(auth);
 
-app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('*', noRoute);
 
