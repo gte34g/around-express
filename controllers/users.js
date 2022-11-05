@@ -123,7 +123,7 @@ const getCurrentUser = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
@@ -132,7 +132,7 @@ const login = (req, res, next) => {
           expiresIn: '7d',
         },
       );
-      res.send({ token, user });
+      res.send({ token });
     })
     .catch(() => {
       next(new Unauthorized('Incorrect email or password'));
