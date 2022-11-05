@@ -13,7 +13,7 @@ const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { validationUser, validationLogin } = require('./middlewares/validation');
 const errorHandler = require('./middlewares/errorHandler');
-
+const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const errorPage = require('./routes/noRoute');
@@ -36,6 +36,8 @@ app.use(requestLogger);
 
 app.post('/signin', validationLogin, login);
 app.post('/signup', validationUser, createUser);
+
+app.use(auth);
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
