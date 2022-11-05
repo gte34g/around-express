@@ -27,6 +27,7 @@ const authValidation = celebrate({
 const validateUser = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().custom(validateEmail),
+
     password: Joi.string().required(),
   }),
 });
@@ -34,6 +35,7 @@ const validateUser = celebrate({
 const validateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().custom(validateEmail),
+
     password: Joi.string().required(),
   }),
 });
