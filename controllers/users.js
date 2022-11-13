@@ -5,10 +5,10 @@ const { JWT_SECRET } = require('../lib/config');
 
 const User = require('../models/user');
 
+const Unauthorized = ('../errors/Unauthorized');
 const NOT_FOUND_ERROR = ('../errors/NotFound');
 const ConflictError = ('../errors/ConflictError');
 const Validation = ('../errors/Validation.js');
-// const Unauthorized = ('../errors/Unauthorized');
 const {
   DEFAULT_ERROR_CODE,
   USER_NOT_FOUND,
@@ -132,9 +132,11 @@ const login = (req, res, next) => {
           expiresIn: '7d',
         },
       );
-      res.send({ user, token });
+      res.send({ data: user.toJSON(), token });
     })
-    .catch(next);
+    .catch(() => {
+      next(new Unauthorized('Incorrect email or password'));
+    });
 };
 
 module.exports = {
