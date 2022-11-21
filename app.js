@@ -21,6 +21,7 @@ const limiter = rateLimit({
   max: 100,
 });
 app.use(limiter);
+app.use(express.json());
 app.use(cors());
 app.options('*', cors());
 app.use(helmet());
