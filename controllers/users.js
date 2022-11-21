@@ -6,115 +6,63 @@ const { JWT_SECRET } = require('../lib/config');
 const User = require('../models/user');
 
 const { processUserWithId } = require('../lib/helpers');
-const {
-  INVALID_DATA,
-  DEFAULT_ERROR_CODE,
-  USER_NOT_FOUND,
-  DEFAULT_ERROR,
-} = require('../lib/errors');
+const { INVALID_DATA, DATA_EXIST } = require('../lib/errors');
 
-const ConflictError = ('../errors/ConflictError'); // 409
-const NOT_FOUND_ERROR = ('../errors/NotFoutnd'); // 404
-const Unauthorized = ('../errors/Unauthorized'); // 401
-const Validation = ('../errors/Validation.js'); // 400
+const Unauthorized = ('../errors/Unauthorized');
+// const ConflictError = ('../errors/ConflictError');
+const Validation = ('../errors/Validation.js');
 
-const getUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-
-    res.send(users);
-  } catch (err) {
-    res.send(DEFAULT_ERROR_CODE).send(err);
-  }
+const getUsers = (req, res, next) => {
+  processUserWithId(req, res, User.findById(req.user._id), next);
 };
 
-const getUserById = async (req, res) => {
-  const { _id } = req.params;
-  User.findById(_id)
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'CastError') {
-        res.status(NOT_FOUND_ERROR).send({ Error: INVALID_DATA });
-      } else {
-        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
-      }
-    });
+const getUserById = async (req, res, next) => {
+  processUserWithId(req, res, User.findById(req.params.id), next);
 };
 
 const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-  User.findOne({ email })
-    .then((user) => {
-      if (user) {
-        throw new ConflictError('Email already exists');
-      }
-      return bcrypt.hash(password, 10);
-    })
+  bcrypt
+    .hash(req.body.password, 10)
     .then((hash) =>
       User.create({
-        name,
-        about,
-        avatar,
-        email,
+        ...req.body,
         password: hash,
-      }))
-    .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new Validation(err.message));
-      } else {
-        next(err);
-      }
-    });
+      })
+        .then((user) => res.status(201).send(user))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            throw new Validation(INVALID_DATA);
+          } else {
+            throw new Validation(DATA_EXIST);
+          }
+        }))
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
+  const { name, about } = req.body;
   const { _id } = req.user;
-  User.findByIdAndUpdate(
-    _id,
-    { name: req.body.name, about: req.body.about },
-    { runValidators: true, new: true },
-  )
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'CastError') {
-        res.status(Validation).send({ Error: INVALID_DATA });
-      } else if (err.name === 'ValidationError') {
-        res.status(Validation).send({ Error: err.message });
-      } else {
-        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
-      }
-    });
+  processUserWithId(
+    req,
+    res,
+    User.findByIdAndUpdate(
+      _id,
+      { name, about },
+      { runValidators: true, new: true },
+    ),
+    next,
+  );
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { _id } = req.user;
-  User.findByIdAndUpdate(
-    _id,
-    { avatar: req.body.avatar },
-    { runValidators: true, new: true },
-  )
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'CastError') {
-        res.status(Validation).send({ Error: INVALID_DATA });
-      } else if (err.name === 'ValidationError') {
-        res.status(Validation).send({ Error: err.message });
-      } else {
-        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
-      }
-    });
+  const { avatar } = req.body;
+  processUserWithId(
+    req,
+    res,
+    User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true }),
+    next,
+  );
 };
 
 const getCurrentUser = (req, res, next) => {
