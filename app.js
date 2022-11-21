@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
-const router = require('./routes');
+const router = require('./routes/index');
 
 mongoose.connect('mongodb://localhost:27017/aroundb');
 
