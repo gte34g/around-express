@@ -1,3 +1,4 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -6,19 +7,17 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 const User = require('../models/user');
 
-const { processUserWithId } = require('../lib/helpers');
-// const { INVALID_DATA, USER_NOT_FOUND } = require('../lib/errors');
+const processUserWithId = require('../lib/helpers');
 
 const Unauthorized = require('../errors/Unauthorized');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const NOT_FOUND_ERROR = require('../errors/NotFound');
-// const NotFoundError = require('../errors/NotFound');
+const NotFoundError = require('../errors/NotFound');
 
 const getUserData = (id, res, next) => {
   User.findById(id)
-    .orFail(() => NOT_FOUND_ERROR('User ID not found'))
-    .then((users) => res.send({ data: users }))
+    .orFail(() => NotFoundError('User ID not found'))
+    .then((users) => res.send({ users }))
     .catch(next);
 };
 
