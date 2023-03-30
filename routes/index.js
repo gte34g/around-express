@@ -7,7 +7,7 @@ const { createUser, login } = require('../controllers/users');
 const { /*validateUserBody,*/ validateLogin } = require('../middlewares/validation');
 
 router.post('/signin', validateLogin, login);
-router.post('/signup', validateLogin, createUser);
+router.post("/signup", validateSignup, createUser);
 router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardsRouter);
