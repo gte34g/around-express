@@ -9,12 +9,12 @@ const validateUrl = (v, helpers) => {
   return helpers.error('string.uri');
 };
 
-function validateEmail(string) {
-  if (!validator.isEmail(string)) {
-    throw new Error('Invalid Email');
+const validateEmail = (value, helpers) => {
+  if (validator.isEmail(value)) {
+    return value;
   }
-  return string;
-}
+  return helpers.message('invalid Email');
+};
 
 const authValidation = celebrate({
   headers: Joi.object()
@@ -101,10 +101,12 @@ const validateLogin = celebrate({
 });
 
 const validateSignup = celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    })
+    .unknown(true),
 });
 
 module.exports = {
