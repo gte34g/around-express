@@ -22,7 +22,7 @@ app.use(cors());
 app.options('*', cors());
 
 app.use(requestLogger);
-
+app.use(router);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -33,7 +33,6 @@ app.use(express.json());
 app.use(helmet());
 app.use(bodyParser.json());
 
-app.use(router);
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Server will crash now');

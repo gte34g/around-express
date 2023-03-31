@@ -64,6 +64,7 @@ const validateUserBody = celebrate({
       'string.min': 'About must be at least 2 characters long',
       'string.max': 'About must be less than 30 characters long',
     }),
+    avatar: Joi.string().uri(),
     email: Joi.string().required().custom(validateEmail),
     password: Joi.string().required().min(8).messages({
       'string.empty': 'Password is required',
