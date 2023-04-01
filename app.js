@@ -18,6 +18,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const { createUser, login } = require('./controllers/users');
 const { validateLogin, validateSignup } = require('./middlewares/validation');
 const routes = require('./routes');
+const auth = require('./middlewares/auth');
 
 // mongoose.set('strictQuery', false);
 const url = process.env.CONNECTION_URL.toString();
@@ -42,6 +43,8 @@ app.use(requestLogger);
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateSignup, createUser);
+
+app.use(auth);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
