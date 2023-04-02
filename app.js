@@ -17,9 +17,11 @@ const errorHandler = require('./middlewares/errorHandler');
 // const router = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
 const { validateLogin, validateSignup } = require('./middlewares/validation');
-const routes = require('./routes');
+// const routes = require('./routes');
 const auth = require('./middlewares/auth');
-
+const userRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
+const NoRoute = require('./routes/noRoute');
 // mongoose.set('strictQuery', false);
 const url = process.env.CONNECTION_URL.toString();
 
@@ -46,6 +48,9 @@ app.post('/signup', validateSignup, createUser);
 
 app.use(auth);
 
+app.use('/', userRouter);
+app.use('/', cardsRouter);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -67,7 +72,7 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.use(routes);
+app.use('*', NoRoute);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
