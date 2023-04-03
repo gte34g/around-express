@@ -26,10 +26,7 @@ const NoRoute = require('./routes/noRoute');
 // const url = process.env.CONNECTION_URL.toString();
 
 mongoose
-  .connect('mongodb://127.0.0.1:27017/aroundb', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect('mongodb://127.0.0.1:27017/aroundb')
   .then(() => {
     // eslint-disable-next-line no-console
     console.log('Connected to MongoDB :)');
