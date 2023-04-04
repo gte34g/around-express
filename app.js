@@ -21,7 +21,7 @@ const { validateLogin, validateSignup } = require('./middlewares/validation');
 const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const NotFound = require('./errors/NotFound');
+const NotFoundError = require('./routes/noRoute');
 // mongoose.set('strictQuery', false);
 // const url = process.env.CONNECTION_URL.toString();
 
@@ -69,7 +69,7 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.use('*', NotFound);
+app.use('*', NotFoundError);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
