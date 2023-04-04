@@ -45,9 +45,6 @@ app.post(
   '/signin',
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().uri(),
       email: Joi.string().required().email(),
       password: Joi.string().required(),
     }),
@@ -61,7 +58,7 @@ app.post(
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().uri(),
+      avatar: Joi.string().uri({ scheme: ['http', 'https'] }),
       email: Joi.string().required().email(),
       password: Joi.string().required(),
     }),
@@ -70,9 +67,10 @@ app.post(
 );
 
 app.use(auth);
-
 app.use('/', userRouter);
 app.use('/', cardsRouter);
+
+app.use('*', NotFoundError);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -95,7 +93,7 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.use('*', NotFoundError);
+
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
