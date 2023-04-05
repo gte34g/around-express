@@ -63,7 +63,14 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
+  (req, res, next) => {
+    console.log('Request data:', req.body);
+    next();
+  },
   createUser,
+  (req, res) => {
+    console.log('Response data:', res.body);
+  },
 );
 
 app.use(auth);
@@ -92,8 +99,6 @@ app.use(errorLogger);
 
 app.use(errors());
 app.use(errorHandler);
-
-
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
