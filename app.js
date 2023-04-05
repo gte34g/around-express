@@ -40,7 +40,7 @@ app.use(cors());
 app.options('*', cors());
 
 app.use(requestLogger);
-app.use(auth);
+
 app.post(
   '/signin',
   celebrate({
@@ -73,7 +73,7 @@ app.post(
   },
 );
 
-
+app.use(auth);
 app.use('/', userRouter);
 app.use('/', cardsRouter);
 
