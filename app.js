@@ -38,7 +38,7 @@ mongoose
 
 app.use(cors());
 app.options('*', cors());
-
+app.use(express.json());
 app.use(requestLogger);
 
 app.post(
@@ -84,7 +84,6 @@ const limiter = rateLimit({
   max: 100,
 });
 app.use(limiter);
-app.use(express.json());
 // app.use(router);
 app.use(helmet());
 app.use(bodyParser.json());

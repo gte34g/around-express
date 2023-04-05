@@ -18,11 +18,9 @@ const validateEmail = (value, helpers) => {
 
 const authValidation = celebrate({
   headers: Joi.object()
-
     .keys({
       authorization: Joi.string().required(),
     })
-
     .unknown(true),
 });
 
@@ -36,6 +34,12 @@ const validateObjId = celebrate({
         }
         return helpers.message('Invalid id');
       }),
+  }),
+});
+
+const validateUserdId = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().hex().length(24),
   }),
 });
 
@@ -101,19 +105,12 @@ const validateLogin = celebrate({
   }),
 });
 
-const validateSignup = celebrate({
-  body: Joi.object()
-    .keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-    })
-    .unknown(true),
-});
 
 module.exports = {
   authValidation,
   validateUrl,
   validateObjId,
+  validateUserdId,
   validateCardBody,
   newCardValidation,
   validateUserBody,
@@ -121,5 +118,4 @@ module.exports = {
   validateAvatar,
   validateProfile,
   validateLogin,
-  validateSignup,
 };
