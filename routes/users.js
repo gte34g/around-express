@@ -22,6 +22,7 @@ router.patch('/me', authValidation, validateProfile, updateUser);
 router.patch('/me/avatar', authValidation, validateAvatar, updateAvatar);
 
 router.use((err, req, res, next) => {
+  // eslint-disable-next-line no-console
   console.error(err);
   res.status(500).send('Internal Server Error');
 });
