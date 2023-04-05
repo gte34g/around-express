@@ -105,7 +105,6 @@ const validateLogin = celebrate({
   }),
 });
 
-
 module.exports = {
   authValidation,
   validateUrl,

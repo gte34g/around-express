@@ -34,9 +34,7 @@ const getCurrentUser = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
       if (user) {
@@ -51,9 +49,11 @@ const createUser = (req, res, next) => {
         avatar,
         email,
         password: hash,
-      }))
+      })
+    )
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
+      console.log(err); // add this line to log the error
       if (err.name === 'ValidationError') {
         next(new BadRequestError(err.message));
       } else {
