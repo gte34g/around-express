@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const router = require('express').Router();
 const {
   getUsers,
@@ -22,9 +23,12 @@ router.patch('/me', authValidation, validateProfile, updateUser);
 router.patch('/me/avatar', authValidation, validateAvatar, updateAvatar);
 
 router.use((err, req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.error(err);
-  res.status(500).send('Internal Server Error');
+  if (err) {
+    // eslint-disable-next-line no-console
+    console.error(err.stack);
+    return res.status(500).send('Internal Server Error');
+  }
+  next(err);
 });
 
 module.exports = router;
