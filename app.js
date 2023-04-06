@@ -12,12 +12,11 @@ const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { celebrate, Joi } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
 // const router = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
-// const { validateLogin, validateSignup } = require('./middlewares/validation');
+const { validateLogin, validateUserBody } = require('./middlewares/validation');
 // const routes = require('./routes');
 const auth = require('./middlewares/auth');
 const userRouter = require('./routes/users');
@@ -38,39 +37,27 @@ mongoose
 
 app.use(cors());
 app.options('*', cors());
-app.use(express.json());
+
 app.use(requestLogger);
 
 app.post(
   '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
+  validateLogin,
+  (req, res, next) => {
+    console.log('Request data:', req.body);
+    next();
+  },
   login,
 );
 
 app.post(
   '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().uri({ scheme: ['http', 'https'] }),
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
+  validateUserBody,
   (req, res, next) => {
     console.log('Request data:', req.body);
     next();
   },
   createUser,
-  (req, res) => {
-    console.log('Response data:', res.body);
-  },
 );
 
 app.use(auth);
@@ -84,6 +71,7 @@ const limiter = rateLimit({
   max: 100,
 });
 app.use(limiter);
+app.use(express.json());
 // app.use(router);
 app.use(helmet());
 app.use(bodyParser.json());
