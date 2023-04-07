@@ -34,9 +34,18 @@ mongoose
   .catch((err) => {
     console.log('Error connecting to MongoDB: ', err.message);
   });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
 
 app.use(cors());
 app.options('*', cors());
+app.use(bodyParser.json());
+
+app.use(limiter);
+app.use(express.json());
+app.use(helmet());
 
 app.use(requestLogger);
 
@@ -66,15 +75,7 @@ app.use('/', cardsRouter);
 
 app.use('*', NotFoundError);
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
-app.use(express.json());
 // app.use(router);
-app.use(helmet());
-app.use(bodyParser.json());
 
 app.get('/crash-test', () => {
   setTimeout(() => {
