@@ -52,7 +52,14 @@ const createUser = (req, res, next) => {
         email,
         password: hash,
       }))
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) =>
+      res.status(201).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      }))
     .catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err); // add this line to log the error
