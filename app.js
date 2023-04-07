@@ -8,20 +8,19 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 
-const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
-// const router = require('./routes/index');
-const { createUser, login } = require('./controllers/users');
-const { validateLogin, validateUserBody } = require('./middlewares/validation');
-// const routes = require('./routes');
-const auth = require('./middlewares/auth');
-const userRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
-const NotFoundError = require('./routes/noRoute');
+const router = require('./routes/index');
+// const { createUser, login } = require('./controllers/users');
+// const { validateLogin, validateUserBody } = require('./middlewares/validation');
+
+// const auth = require('./middlewares/auth');
+// const userRouter = require('./routes/users');
+// const cardsRouter = require('./routes/cards');
+// const NotFoundError = require('./routes/noRoute');
 // mongoose.set('strictQuery', false);
 // const url = process.env.CONNECTION_URL.toString();
 
@@ -38,44 +37,46 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
+app.use(limiter);
+app.use(bodyParser.json());
+app.use(helmet());
+
+const { PORT = 3000 } = process.env;
 
 app.use(cors());
 app.options('*', cors());
-app.use(bodyParser.json());
 
-app.use(limiter);
 app.use(express.json());
-app.use(helmet());
 
 app.use(requestLogger);
 
-app.post(
-  '/signin',
-  validateLogin,
-  (req, res, next) => {
-    console.log('Request data:', req.body);
-    next();
-  },
-  login,
-);
+// app.post(
+//   '/signin',
+//   validateLogin,
+//   (req, res, next) => {
+//     console.log('Request data:', req.body);
+//     next();
+//   },
+//   login,
+// );
 
-app.post(
-  '/signup',
-  validateUserBody,
-  (req, res, next) => {
-    console.log('Request data:', req.body);
-    next();
-  },
-  createUser,
-);
+// app.post(
+//   '/signup',
+//   validateUserBody,
+//   (req, res, next) => {
+//     console.log('Request data:', req.body);
+//     next();
+//   },
+//   createUser,
+// );
 
-app.use(auth);
-app.use('/', userRouter);
-app.use('/', cardsRouter);
+// app.use(auth);
+// app.use('/', userRouter);
+// app.use('/', cardsRouter);
 
-app.use('*', NotFoundError);
+// app.use('*', NotFoundError);
 
-// app.use(router);
+app.use('/', router);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
