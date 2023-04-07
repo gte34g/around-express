@@ -6,13 +6,13 @@ const auth = require('../middlewares/auth');
 const NoRoute = require('./noRoute');
 const { createUser, login } = require('../controllers/users');
 // const validateLogin = require('../middlewares/validation');
-
+router.use('/users', userRouter);
+router.use('/cards', cardsRouter);
+router.use(auth);
 router.post('/signup', celebrate({
   body: Joi.object().keys({
-
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
-
   }).unknown(true),
 }), createUser);
 
@@ -20,13 +20,8 @@ router.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
-
   }),
 }), login);
-
-router.use(auth);
-router.use('/users', userRouter);
-router.use('/cards', cardsRouter);
 
 router.use('*', NoRoute);
 
