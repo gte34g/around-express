@@ -7,17 +7,17 @@ const {
   getCurrentUser,
 } = require('../controllers/users');
 
-const {
-  validateObjId,
-  validateAvatar,
-  validateProfile,
-} = require('../middlewares/validation');
+// const {
+//   validateObjId,
+//   validateAvatar,
+//   validateProfile,
+// } = require('../middlewares/validation');
 
 router.get('/', getUsers);
-router.get('/:_id', validateObjId, getUserById);
-router.get('/me', validateProfile, getCurrentUser);
+router.get('/:_id', getUserById);
+router.get('/me', getCurrentUser);
 router.patch('/me', updateUser);
-router.patch('/me/avatar', validateAvatar, validateProfile, updateAvatar);
+router.patch('/me/avatar', updateAvatar);
 
 // eslint-disable-next-line no-console
 console.log('User router initialized');
