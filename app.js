@@ -37,12 +37,12 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-app.use(limiter);
+
 app.use(bodyParser.json());
 app.use(helmet());
 
 const { PORT = 3000 } = process.env;
-
+app.use(limiter);
 app.use(cors());
 app.options('*', cors());
 
