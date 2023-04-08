@@ -13,14 +13,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
-const router = require('./routes/index');
-// const { createUser, login } = require('./controllers/users');
-// const { validateLogin, validateUserBody } = require('./middlewares/validation');
+// const router = require('./routes/index');
+const { createUser, login } = require('./controllers/users');
+const { validateLogin, validateUserBody } = require('./middlewares/validation');
 
-// const auth = require('./middlewares/auth');
-// const userRouter = require('./routes/users');
-// const cardsRouter = require('./routes/cards');
-// const NotFoundError = require('./routes/noRoute');
+const auth = require('./middlewares/auth');
+const userRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
+const NotFoundError = require('./routes/noRoute');
 // mongoose.set('strictQuery', false);
 // const url = process.env.CONNECTION_URL.toString();
 
@@ -49,33 +49,33 @@ app.use(express.json());
 
 app.use(requestLogger);
 
-// app.post(
-//   '/signin',
-//   validateLogin,
-//   (req, res, next) => {
-//     console.log('Request data:', req.body);
-//     next();
-//   },
-//   login,
-// );
+app.post(
+  '/signin',
+  validateLogin,
+  (req, res, next) => {
+    console.log('Request data:', req.body);
+    next();
+  },
+  login,
+);
 
-// app.post(
-//   '/signup',
-//   validateUserBody,
-//   (req, res, next) => {
-//     console.log('Request data:', req.body);
-//     next();
-//   },
-//   createUser,
-// );
+app.post(
+  '/signup',
+  validateUserBody,
+  (req, res, next) => {
+    console.log('Request data:', req.body);
+    next();
+  },
+  createUser,
+);
 
-// app.use(auth);
-// app.use('/', userRouter);
-// app.use('/', cardsRouter);
+app.use(auth);
+app.use('/', userRouter);
+app.use('/', cardsRouter);
 
-// app.use('*', NotFoundError);
+app.use('*', NotFoundError);
 
-app.use(router);
+// app.use(router);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
