@@ -18,8 +18,8 @@ const router = require('./routes/index');
 // const { validateLogin, validateUserBody } = require('./middlewares/validation');
 
 // const auth = require('./middlewares/auth');
-const userRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
+// const userRouter = require('./routes/users');
+// const cardsRouter = require('./routes/cards');
 // const NotFoundError = require('./routes/noRoute');
 // mongoose.set('strictQuery', false);
 // const url = process.env.CONNECTION_URL.toString();
@@ -78,8 +78,6 @@ app.use(requestLogger);
 
 app.use('/', router);
 
-app.use('/users', userRouter);
-app.use('/cards', cardsRouter);
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Server will crash now');
