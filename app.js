@@ -75,7 +75,7 @@ app.use(requestLogger);
 
 // app.use('*', NotFoundError);
 
-app.use('/', router);
+app.use(router);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
