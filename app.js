@@ -26,14 +26,15 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-app.use(limiter);
+
 app.use(cors());
 app.options('*', cors());
-app.use(helmet());
+
 app.use(bodyParser.json());
-
+app.use(limiter);
+app.use(express.json());
 app.use(requestLogger);
-
+app.use(helmet());
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUser, createUser);
 
