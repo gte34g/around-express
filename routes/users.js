@@ -8,18 +8,16 @@ const {
 } = require('../controllers/users');
 
 const {
-  validateObjId,
-  validateAvatar,
-  validateProfile,
+  authValidation,
+  validateUserdId,
+  updateUserValidation,
+  updateAvatarValidation,
 } = require('../middlewares/validation');
 
-router.get('/', getUsers);
-router.get('/:_id', validateObjId, getUserById);
-router.get('/me', validateProfile, getCurrentUser);
-router.patch('/me', updateUser);
-router.patch('/me/avatar', validateAvatar, validateProfile, updateAvatar);
-
-// eslint-disable-next-line no-console
-console.log('User router initialized');
+router.get('/', authValidation, getUsers);
+router.get('/:_id', authValidation, validateUserdId, getUserById);
+router.get('/me', authValidation, getCurrentUser);
+router.patch('/me', authValidation, updateUser);
+router.patch('/me/avatar', authValidation, updateAvatarValidation, updateUserValidation, updateAvatar);
 
 module.exports = router;
