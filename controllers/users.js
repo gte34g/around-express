@@ -25,8 +25,8 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = async (req, res, next) => {
-  const { _id } = req.params;
-  User.findById(_id)
+  const { id } = req.params;
+  User.findById(id)
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
@@ -71,18 +71,16 @@ const createUser = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { _id } = req.user;
+  const { id } = req.params;
   User.findByIdAndUpdate(
-    _id,
+    id,
     { name: req.body.name, about: req.body.about },
     { runValidators: true, new: true },
   )
     .orFail(new NOT_FOUND_ERROR('Data is not found'))
     .then((user) => res.status(SUCCESS_OK).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new Validation('Invalid data'));
-      } if (err.name === 'ValidationError') {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
         return next(new Validation('Invalid data'));
       }
       return next(err);
