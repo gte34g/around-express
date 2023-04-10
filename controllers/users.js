@@ -1,44 +1,36 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// const { JWT_SECRET } = require('../lib/config');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const User = require('../models/user');
 
-const NOT_FOUND_ERROR = ('../errors/NotFound');
-const ConflictError = ('../errors/ConflictError');
-const Validation = ('../errors/Validation.js');
-const Unauthorized = ('../errors/Unauthorized');
-const {
-  DEFAULT_ERROR_CODE,
-  USER_NOT_FOUND,
-  INVALID_DATA,
-  DEFAULT_ERROR,
-  SUCCESS_OK,
-} = require('../lib/errors');
+const processUserWithId = require('../lib/helpers');
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .orFail(new NOT_FOUND_ERROR('Data is not found'))
-    .then((users) => res.status(SUCCESS_OK).send(users))
+const Unauthorized = require('../errors/Unauthorized');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFound');
+
+const getUserData = (id, res, next) => {
+  User.findById(id)
+    .orFail(() => NotFoundError('User ID not found'))
+    .then((users) => res.send({ users }))
     .catch(next);
 };
 
-const getUserById = async (req, res, next) => {
-  const { id } = req.params;
-  User.findById(id)
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
-      } else if (err.name === 'CastError') {
-        res.status(Validation).send({ Error: INVALID_DATA });
-      } else {
-        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
-      }
-    })
-    .catch(next);
+const getUsers = (req, res, next) => {
+  getUserData(req.params.id, res, next);
+};
+
+const getUserById = (req, res, next) => {
+  processUserWithId(req, res, User.findById(req.params.id), next);
+};
+
+const getCurrentUser = (req, res, next) => {
+  getUserData(req.user._id, res, next);
 };
 
 const createUser = (req, res, next) => {
@@ -63,7 +55,7 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new Validation(err.message));
+        next(new BadRequestError(err.message));
       } else {
         next(err);
       }
@@ -71,64 +63,65 @@ const createUser = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { id } = req.params;
-  User.findByIdAndUpdate(
-    id,
-    { name: req.body.name, about: req.body.about },
-    { runValidators: true, new: true },
-  )
-    .orFail(new NOT_FOUND_ERROR('Data is not found'))
-    .then((user) => res.status(SUCCESS_OK).send(user))
-    .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return next(new Validation('Invalid data'));
-      }
-      return next(err);
-    });
+  const { name, about } = req.body;
+  const { _id } = req.user;
+  processUserWithId(
+    req,
+    res,
+    User.findByIdAndUpdate(
+      _id,
+      { name, about },
+      { runValidators: true, new: true },
+    ),
+    next,
+  );
 };
 
 const updateAvatar = (req, res, next) => {
   const { _id } = req.user;
-  User.findByIdAndUpdate(
-    _id,
-    { avatar: req.body.avatar },
-    { runValidators: true, new: true },
-  )
-    .orFail(new NOT_FOUND_ERROR('Data is not found'))
-    .then((user) => res.status(SUCCESS_OK).send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new Validation('Invalid data'));
-      } if (err.name === 'ValidationError') {
-        return next(new Validation('Invalid data'));
-      }
-      return next(err);
-    });
+  const { avatar } = req.body;
+  processUserWithId(
+    req,
+    res,
+    User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true }),
+    next,
+  );
 };
 
-const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(new NOT_FOUND_ERROR('Data is not found'))
-    .then((user) => res.status(SUCCESS_OK).send(user))
-    .catch(next);
-};
+// const getCurrentUser = (req, res, next) => {
+//   const { _id } = req.user;
+//   User.findById(_id)
+//     .orFail()
+//     .then((user) => res.send(user))
+//     .catch((err) => {
+//       if (err.name === 'DocumentNotFoundError') {
+//         throw new NotFoundError(USER_NOT_FOUND);
+//       } else if (err.name === 'CastError') {
+//         throw new BadRequestError(INVALID_DATA);
+//       }
+//     })
+//     .catch(next);
+// };
 
 const login = (req, res, next) => {
-  const { email, password } = req.body;
+  const { password, email } = req.body;
   return User.findUserByCredentials(email, password)
-    .then((user) => {
+    .then((data) => {
       const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        { _id: data._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET',
         {
           expiresIn: '7d',
         },
       );
-      res.send({ token });
+      // eslint-disable-next-line no-shadow
+      const { password, ...user } = data._doc;
+      res.send({ token, user });
     })
-    .catch(() => {
-      next(new Unauthorized('Incorrect email or password'));
-    });
+    .catch((err) => {
+      throw new Unauthorized(err.message);
+    })
+    .catch(next);
 };
 
 module.exports = {
