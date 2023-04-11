@@ -56,7 +56,7 @@ const updateAvatarValidation = celebrate({
   }),
 });
 
-const validateUserdId = celebrate({
+const validateUserId = celebrate({
   params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
   }),
@@ -83,7 +83,7 @@ module.exports = {
   validateLogin,
   updateUserValidation,
   updateAvatarValidation,
-  validateUserdId,
+  validateUserId,
   newCardValidation,
   cardValidationId,
 };
