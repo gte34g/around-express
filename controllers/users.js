@@ -25,29 +25,29 @@ const getUsers = (req, res, next) => {
   getUserData(req.params.id, res, next);
 };
 
-const getUserById = async (req, res) => {
-  const { _id } = req.params;
-  User.findById(_id)
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(NotFoundError).send({ Error: err.message });
-      } else if (err.name === 'CastError') {
-        res.status(NotFoundError).send({ Error: err.message });
-      } else {
-        res.status(BadRequestError).send({ Error: err.message });
-      }
-    });
+// const getUserById = async (req, res) => {
+//   const { _id } = req.params;
+//   User.findById(_id)
+//     .orFail()
+//     .then((user) => res.send(user))
+//     .catch((err) => {
+//       if (err.name === 'DocumentNotFoundError') {
+//         res.status(NotFoundError).send({ Error: err.message });
+//       } else if (err.name === 'CastError') {
+//         res.status(NotFoundError).send({ Error: err.message });
+//       } else {
+//         res.status(BadRequestError).send({ Error: err.message });
+//       }
+//     });
+// };
+
+const getUserById = (req, res, next) => {
+  processUserWithId(req, res, User.findById(req.params._id), next);
 };
 
-// const getUserById = (req, res, next) => {
-//   processUserWithId(req, res, User.findById(req.params._id), next);
-// };
-
-// const getCurrentUser = (req, res, next) => {
-//   getUserData(req.user._id, res, next);
-// };
+const getCurrentUser = (req, res, next) => {
+  getUserData(req.user._id, res, next);
+};
 
 const createUser = (req, res, next) => {
   const {
@@ -104,20 +104,20 @@ const updateAvatar = (req, res, next) => {
   );
 };
 
-const getCurrentUser = (req, res, next) => {
-  const { _id } = req.user;
-  User.findById(_id)
-    .orFail()
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(err.message);
-      } else if (err.name === 'CastError') {
-        throw new BadRequestError(err.message);
-      }
-    })
-    .catch(next);
-};
+// const getCurrentUser = (req, res, next) => {
+//   const { _id } = req.user;
+//   User.findById(_id)
+//     .orFail()
+//     .then((user) => res.send(user))
+//     .catch((err) => {
+//       if (err.name === 'DocumentNotFoundError') {
+//         throw new NotFoundError(err.message);
+//       } else if (err.name === 'CastError') {
+//         throw new BadRequestError(err.message);
+//       }
+//     })
+//     .catch(next);
+// };
 
 const login = (req, res, next) => {
   const { password, email } = req.body;
