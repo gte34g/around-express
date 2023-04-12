@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 // const { JWT_SECRET } = require('../lib/config');
-const { NODE_ENV, JWT_SECRET } = process.env;
+const JWT_SECRET = 'secret-something';
+const NODE_ENV = process.env;
 
 const User = require('../models/user');
 
