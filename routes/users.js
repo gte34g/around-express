@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { celebrate, Joi, Segments } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const {
   getUsers,
   getUserById,
@@ -15,7 +15,7 @@ router.get(
   '/:_id',
   auth,
   celebrate({
-    [Segments.PARAMS]: Joi.object({
+    body: Joi.object({
       id: Joi.string().alphanum().required(),
     }),
   }),
