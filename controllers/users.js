@@ -12,44 +12,50 @@ const Unauthorized = require('../errors/Unauthorized');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFound');
+const errorHandler = require('../middlewares/errorHandler');
 
-const getUserData = (id, res, next) => {
-  User.findById(id)
-    .orFail(() => NotFoundError('User ID not found'))
-    .then((users) => res.send({ users }))
-    .catch(next);
-};
-
-const getUsers = (req, res, next) => {
-  getUserData(req.params.id, res, next);
-};
-
-// const getUserById = async (req, res) => {
-//   const { _id } = req.params;
-//   User.findById(_id)
-//     .orFail()
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       if (err.name === 'DocumentNotFoundError') {
-//         res.status(NotFoundError).send({ Error: err.message });
-//       } else if (err.name === 'CastError') {
-//         res.status(NotFoundError).send({ Error: err.message });
-//       } else {
-//         res.status(BadRequestError).send({ Error: err.message });
-//       }
-//     });
+// const getUserData = (id, res, next) => {
+//   User.findById(id)
+//     .orFail(() => NotFoundError('User ID not found'))
+//     .then((users) => res.send({ data: users }))
+//     .catch(next);
 // };
 
-const getUserById = (req, res, next) => {
-  processUserWithId(req, res, User.findById(req.params.id), next);
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (err) {
+    res.send(errorHandler).send(err);
+  }
 };
 
-const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(() => NotFoundError('User ID not found'))
-    .then((user) => res.send({ user }))
-    .catch(next);
+const getUserById = async (req, res) => {
+  const { _id } = req.params;
+  User.findById(_id)
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NotFoundError).send(err.message);
+      } else if (err.name === 'CastError') {
+        res.status(NotFoundError).send(err.message);
+      } else {
+        res.status(errorHandler).send(err.message);
+      }
+    });
 };
+
+// const getUserById = (req, res, next) => {
+//   processUserWithId(req, res, User.findById(req.params.id), next);
+// };
+
+// const getCurrentUser = (req, res, next) => {
+//   User.findById(req.user._id)
+//     .orFail(() => NotFoundError('User ID not found'))
+//     .then((user) => res.send({ user }))
+//     .catch(next);
+// };
 
 const createUser = (req, res, next) => {
   const {
@@ -144,5 +150,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
-  getCurrentUser,
+  // getCurrentUser,
 };

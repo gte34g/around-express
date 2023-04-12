@@ -5,7 +5,7 @@ const {
   getUserById,
   updateUser,
   updateAvatar,
-  getCurrentUser,
+  // getCurrentUser,
 } = require('../controllers/users');
 
 const auth = require('../middlewares/auth');
@@ -21,7 +21,7 @@ router.get(
   }),
   getUserById,
 );
-router.get('/me', getCurrentUser);
+// router.get('/me', getCurrentUser);
 router.patch('/me', auth, updateUser);
 router.patch(
   '/me/avatar',
