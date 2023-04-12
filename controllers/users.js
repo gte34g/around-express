@@ -51,7 +51,7 @@ const getUserById = async (req, res) => {
 // };
 
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.params.id)
     .orFail(() => NotFoundError('User ID not found'))
     .then((user) => res.send({ user }))
     .catch(next);
