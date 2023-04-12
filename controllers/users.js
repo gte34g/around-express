@@ -31,8 +31,8 @@ const getUsers = async (req, res) => {
 };
 
 const getUserById = async (req, res) => {
-  const { _id } = req.params;
-  User.findById(_id)
+  const { id } = req.params;
+  User.findById(id)
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
@@ -88,12 +88,12 @@ const createUser = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
-  const { _id } = req.user;
+  const { id } = req.user;
   processUserWithId(
     req,
     res,
     User.findByIdAndUpdate(
-      _id,
+      id,
       { name, about },
       { runValidators: true, new: true },
     ),
@@ -102,19 +102,19 @@ const updateUser = (req, res, next) => {
 };
 
 const updateAvatar = (req, res, next) => {
-  const { _id } = req.user;
+  const { id } = req.user;
   const { avatar } = req.body;
   processUserWithId(
     req,
     res,
-    User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true }),
+    User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true }),
     next,
   );
 };
 
 // const getCurrentUser = (req, res, next) => {
-//   const { _id } = req.user;
-//   User.findById(_id)
+//   const { id } = req.user;
+//   User.findById(id)
 //     .orFail()
 //     .then((user) => res.send(user))
 //     .catch((err) => {
@@ -131,7 +131,7 @@ const login = (req, res, next) => {
   const { password, email } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ id: user.id }, JWT_SECRET, {
         expiresIn: '7d',
       });
       // eslint-disable-next-line no-shadow
