@@ -16,7 +16,7 @@ router.get(
   auth,
   celebrate({
     [Segments.PARAMS]: Joi.object({
-      id: Joi.string().alphanum().required(),
+      _id: Joi.string().alphanum().required(),
     }),
   }),
   getUserById,

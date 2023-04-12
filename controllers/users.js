@@ -41,7 +41,7 @@ const getUsers = (req, res, next) => {
 // };
 
 const getUserById = (req, res, next) => {
-  processUserWithId(req, res, User.findById(req.params._id), next);
+  processUserWithId(req, res, User.findById(req.params.id), next);
 };
 
 const getCurrentUser = (req, res, next) => {
