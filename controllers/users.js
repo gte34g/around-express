@@ -45,7 +45,10 @@ const getUserById = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  getUserData(req.user.id, res, next);
+  User.findById(req.user._id)
+    .orFail(() => NotFoundError('User ID not found'))
+    .then((user) => res.send({ user }))
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
