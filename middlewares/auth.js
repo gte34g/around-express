@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return next(new Unauthorized('You are not authorized'));
   }
-
+  console.log(JWT_SECRET);
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {

@@ -4,8 +4,6 @@ const bcrypt = require('bcryptjs');
 
 // const { JWT_SECRET } = require('../lib/config');
 const JWT_SECRET = 'secret-something';
-const NODE_ENV = process.env;
-
 const User = require('../models/user');
 
 const processUserWithId = require('../lib/helpers');
@@ -123,17 +121,12 @@ const updateAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { password, email } = req.body;
   return User.findUserByCredentials(email, password)
-    .then((data) => {
-      const token = jwt.sign(
-        { _id: data._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET',
-        {
-          expiresIn: '7d',
-        },
-      );
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
       // eslint-disable-next-line no-shadow
-      const { password, ...user } = data._doc;
-      res.send({ token, user });
+      res.send({ data: user.toJSON(), token });
     })
     .catch((err) => {
       throw new Unauthorized(err.message);
