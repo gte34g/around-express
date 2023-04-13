@@ -46,7 +46,7 @@ const validateUser = celebrate({
       .messages({
         'string.empty': 'The "email" field must be filled in',
       }),
-    avatar: Joi.string().custom(validateUrl)
+    avatar: Joi.string().pattern(LINK_REGEXP)
       .message('The "avatar" field must be a valid URL'),
   }),
 });
