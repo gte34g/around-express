@@ -22,34 +22,34 @@ const {
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(SUCCESS_OK).send({ data: users })) // 200
-    .catch((err) => next(new DEFAULT_ERROR_CODE(err.message)));// 500
+    .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
 };
 
 const getUserById = (id, res, req, next) => {
   User.findById(id)
-    .orFail(() => next(new NotFoundError('User not found')))// 404
+    .orFail(() => next(new NotFoundError('User not found'))) // 404
     .then((user) => {
       res.status(SUCCESS_OK).send({ data: user }); // 200
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError('Invalid user'));// 400
+        return next(new BadRequestError('Invalid user')); // 400
       }
-      if (err.status === 404) {
-        return next(new NotFoundError(err.message));// 404
+      if (err instanceof NotFoundError) {
+        return next(err); // 404
       }
-      return next(new DEFAULT_ERROR_CODE(err.message));// 500
+      return next(new DEFAULT_ERROR_CODE(err.message)); // 500
     });
 };
 
 // GET
 const getUser = (req, res, next) => {
   const { _id } = req.params;
-  getUserById(_id, res, req);
+  getUserById(_id, res, req, next);
 };
 
 const getCurrentUser = (req, res, next) => {
-  getUserById(req.user.id, res, next);
+  getUserById(req.user.id, res, req, next);
 };
 
 const createUser = (req, res, next) => {
