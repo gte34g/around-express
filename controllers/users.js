@@ -2,7 +2,7 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const { ObjectId } = require('mongoose').Types;
 // const { JWT_SECRET } = require('../lib/config');
 const JWT_SECRET = 'secret-something';
 const User = require('../models/user');
@@ -46,6 +46,9 @@ const getUserById = (req, res, next) => {
 // GET
 const getUser = (req, res, next) => {
   const { _id } = req.params;
+  if (!ObjectId.isValid(_id)) {
+    return next(new BadRequestError('Invalid user ID')); // 400
+  }
   getUserById(_id, res, req, next);
 };
 
