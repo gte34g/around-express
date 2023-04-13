@@ -58,11 +58,12 @@ const updateAvatarValidation = celebrate({
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required().custom((value, helpers) => {
+    id: Joi.string().required().custom((value, helpers) => {
       if (ObjectId.isValid(value)) {
         return value;
       }
-      console.log(`Invalid _id parameter: ${value}`);
+      // eslint-disable-next-line no-console
+      console.log(`Invalid id parameter: ${value}`);
       return helpers.message('Invalid id');
     }),
   }),
