@@ -25,30 +25,12 @@ const authValidation = celebrate({
 });
 
 const validateUser = celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30)
-      .messages({
-        'string.min': 'The minimum length of the "name" field is 2',
-        'string.max': 'The maximum length of the "name" field is 30',
-      }),
-    about: Joi.string().min(2).max(30)
-      .messages({
-        'string.min': 'The minimum length of the "about" field is 2',
-        'string.max': 'The maximum length of the "about" field is 30',
-      }),
-    password: Joi.string().required().min(8)
-      .messages({
-        'string.min': 'The minimum length of the "about" field is 8',
-        'string.empty': 'The "password" field must be filled in',
-      }),
-    email: Joi.string().required().email()
-      .message('The "email" field must be a valid email')
-      .messages({
-        'string.empty': 'The "email" field must be filled in',
-      }),
-    avatar: Joi.string().pattern(LINK_REGEXP)
-      .message('The "avatar" field must be a valid URL'),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(6),
+    })
+    .unknown(true),
 });
 
 const validateLogin = celebrate({
