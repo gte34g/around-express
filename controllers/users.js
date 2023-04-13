@@ -16,7 +16,7 @@ const NotFoundError = require('../errors/NotFound');
 const getUserData = (_id, res, next) => {
   User.findById(_id)
     .orFail(() => NotFoundError('User ID not found'))
-    .then((users) => res.send({ users }))
+    .then((user) => res.send({ user }))
     .catch(next);
 };
 
