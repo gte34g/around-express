@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -12,40 +13,43 @@ const Unauthorized = require('../errors/Unauthorized');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFound');
+const {
+  SUCCESS_OK,
+  DEFAULT_ERROR_CODE,
+} = require('../lib/errors');
 
-const getUserData = (_id, res, next) => {
-  User.findById(_id)
-    .orFail(() => NotFoundError('User ID not found'))
-    .then((user) => res.send({ user }))
-    .catch(next);
-};
-
+// GET
 const getUsers = (req, res, next) => {
-  getUserData(req.params._id, res, next);
+  User.find({})
+    .then((users) => res.status(SUCCESS_OK).send({ data: users })) // 200
+    .catch((err) => next(new DEFAULT_ERROR_CODE(err.message)));// 500
 };
 
-// const getUserById = async (req, res) => {
-//   const { _id } = req.params;
-//   User.findById(_id)
-//     .orFail()
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       if (err.name === 'DocumentNotFoundError') {
-//         res.status(NotFoundError).send({ Error: err.message });
-//       } else if (err.name === 'CastError') {
-//         res.status(NotFoundError).send({ Error: err.message });
-//       } else {
-//         res.status(BadRequestError).send({ Error: err.message });
-//       }
-//     });
-// };
+const getUserById = (id, res, req, next) => {
+  User.findById(id)
+    .orFail(() => next(new NotFoundError('User not found')))// 404
+    .then((user) => {
+      res.status(SUCCESS_OK).send({ data: user }); // 200
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new BadRequestError('Invalid user'));// 400
+      }
+      if (err.status === 404) {
+        return next(new NotFoundError(err.message));// 404
+      }
+      return next(new DEFAULT_ERROR_CODE(err.message));// 500
+    });
+};
 
-const getUserById = (req, res, next) => {
-  processUserWithId(req, res, User.findById(req.params._id), next);
+// GET
+const getUser = (req, res, next) => {
+  const { id } = req.params;
+  getUserById(id, res, req);
 };
 
 const getCurrentUser = (req, res, next) => {
-  getUserData(req.user._id, res, next);
+  getUserById(req.user.id, res, next);
 };
 
 const createUser = (req, res, next) => {
@@ -122,7 +126,7 @@ const login = (req, res, next) => {
   const { password, email } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
       });
       // eslint-disable-next-line no-shadow
@@ -136,6 +140,7 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
+  getUser,
   getUserById,
   createUser,
   updateUser,
