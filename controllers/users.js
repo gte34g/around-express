@@ -44,8 +44,8 @@ const getUserById = (id, res, req, next) => {
 
 // GET
 const getUser = (req, res, next) => {
-  const { id } = req.params;
-  getUserById(id, res, req);
+  const { _id } = req.params;
+  getUserById(_id, res, req);
 };
 
 const getCurrentUser = (req, res, next) => {
