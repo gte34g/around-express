@@ -43,12 +43,12 @@ const validateLogin = celebrate({
   }),
 });
 
-// const updateUserValidation = celebrate({
-//   body: Joi.object().keys({
-//     name: Joi.string().required().min(2).max(30),
-//     about: Joi.string().required().min(2).max(30),
-//   }),
-// });
+const updateUserValidation = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+});
 
 const updateAvatarValidation = celebrate({
   body: Joi.object().keys({
@@ -87,7 +87,7 @@ module.exports = {
   validateEmail,
   validateUser,
   validateLogin,
-  // updateUserValidation,
+  updateUserValidation,
   updateAvatarValidation,
   validateUserId,
   newCardValidation,

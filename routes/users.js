@@ -11,7 +11,7 @@ const {
 const auth = require('../middlewares/auth');
 // const { validateUserId } = require('../middlewares/validation');
 
-router.get('/', auth, getUsers);
+router.get('/', getUsers);
 router.get(
   '/:_id',
   celebrate({
@@ -23,6 +23,7 @@ router.get(
   getUser,
 );
 router.get('/me', getCurrentUser);
+
 router.patch('/me', auth, updateUser);
 router.patch(
   '/me/avatar',
