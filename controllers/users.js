@@ -1,5 +1,9 @@
 /* eslint-disable no-unused-vars */
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+dotenv.config();
+const { NODE_ENV } = process.env;
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { ObjectId } = require('mongoose').Types;
@@ -126,20 +130,39 @@ const updateAvatar = (req, res, next) => {
 //     .catch(next);
 // };
 
-const login = (req, res, next) => {
+// const login = (req, res, next) => {
+//   const { password, email } = req.body;
+//   return User.findUserByCredentials(email, password)
+//     .then((user) => {
+//       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+//         expiresIn: '7d',
+//       });
+//       // eslint-disable-next-line no-shadow
+//       res.send({ data: user.toJSON(), token });
+//     })
+//     .catch((err) => {
+//       throw new Unauthorized(err.message);
+//     })
+//     .catch(next);
+// };
+
+const login = async (req, res, next) => {
   const { password, email } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      // eslint-disable-next-line no-shadow
-      res.send({ data: user.toJSON(), token });
-    })
-    .catch((err) => {
-      throw new Unauthorized(err.message);
-    })
-    .catch(next);
+  try {
+    if (!password || !email) {
+      next(new BadRequestError('Bad request, please provide password and email'));
+    }
+    const user = await User.findUserByCredentials(email, password);
+    if (user) {
+      const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-something', { expiresIn: '7d' });
+
+      res.status(200).json(token);
+    } else {
+      next(new Unauthorized('your password or email are wrong'));
+    }
+  } catch (e) {
+    next(new Unauthorized('your password or email are wrong'));
+  }
 };
 
 module.exports = {
