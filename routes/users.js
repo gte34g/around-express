@@ -7,7 +7,6 @@ const {
   updateAvatar,
   getCurrentUser,
 } = require('../controllers/users');
-const validateURL = require('../lib/validator');
 
 const auth = require('../middlewares/auth');
 // const { validateUserId } = require('../middlewares/validation');
@@ -17,7 +16,7 @@ router.get(
   '/:_id',
   celebrate({
     params: Joi.object().keys({
-      id: Joi.string().required().alphanum().length(24)
+      _id: Joi.string().required().alphanum().length(24)
         .hex(),
     }),
   }),
@@ -25,19 +24,13 @@ router.get(
 );
 router.get('/me', getCurrentUser);
 
-router.patch('/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
-
-  }),
-}), updateUser);
+router.patch('/me', auth, updateUser);
 router.patch(
   '/me/avatar',
   auth,
   celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string().required().custom(validateURL),
+      avatar: Joi.string().required().uri(),
     }),
   }),
   updateAvatar,
