@@ -48,12 +48,21 @@ const getUserById = (req, res, next) => {
 };
 
 // GET
-const getUser = (req, res, next) => {
-  const { _id } = req.params;
-  if (!ObjectId.isValid(_id)) {
-    return next(new BadRequestError('Invalid user ID')); // 400
+const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      res.status(200).send(user);
+    } else if (user === null) {
+      next(new NotFoundError('User has not found !'));
+    }
+  } catch (e) {
+    if (e.name === 'CastError') {
+      next(new BadRequestError('Bad request please check it!'));
+      return;
+    }
+    next(e);
   }
-  getUserById(_id, res, req, next);
 };
 
 const getCurrentUser = (req, res, next) => {
