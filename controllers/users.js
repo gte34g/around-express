@@ -2,7 +2,7 @@
 const dotenv = require('dotenv');
 
 dotenv.config();
-// const { NODE_ENV } = process.env;
+const { NODE_ENV } = process.env;
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -134,7 +134,7 @@ const login = (req, res, next) => {
   const { password, email } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'secret-something', {
         expiresIn: '7d',
       });
       // eslint-disable-next-line no-shadow
