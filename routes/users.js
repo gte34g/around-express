@@ -9,10 +9,19 @@ const {
 } = require('../controllers/users');
 
 const auth = require('../middlewares/auth');
-const { validateUserId } = require('../middlewares/validation');
+// const { validateUserId } = require('../middlewares/validation');
 
 router.get('/', auth, getUsers);
-router.get('/:_id', validateUserId, getUser);
+router.get(
+  '/:_id',
+  celebrate({
+    params: Joi.object().keys({
+      _id: Joi.string().required().alphanum().length(24)
+        .hex(),
+    }),
+  }),
+  getUser,
+);
 router.get('/me', getCurrentUser);
 router.patch('/me', auth, updateUser);
 router.patch(
