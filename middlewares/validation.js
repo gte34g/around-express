@@ -87,7 +87,7 @@ module.exports = {
   validateEmail,
   validateUser,
   validateLogin,
-  updateUserValidation,
+  // updateUserValidation,
   updateAvatarValidation,
   validateUserId,
   newCardValidation,
