@@ -1,63 +1,45 @@
-/* eslint-disable no-unused-vars */
-const dotenv = require('dotenv');
-
-dotenv.config();
-const { NODE_ENV } = process.env;
-
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { ObjectId } = require('mongoose').Types;
-// const { JWT_SECRET } = require('../lib/config');
-const JWT_SECRET = 'secret-something';
+
+const { JWT_SECRET } = process.env;
+
 const User = require('../models/user');
 
-const processUserWithId = require('../lib/helpers');
-
-const Unauthorized = require('../errors/Unauthorized');
-const BadRequestError = require('../errors/BadRequestError');
-const ConflictError = require('../errors/ConflictError');
-const NotFoundError = require('../errors/NotFound');
 const {
-  SUCCESS_OK,
+  ERROR_CODE,
+  NOT_FOUND_ERROR,
   DEFAULT_ERROR_CODE,
+  USER_NOT_FOUND,
+  INVALID_DATA,
+  DEFAULT_ERROR,
+  UNAUTHORIZE,
+  CONFLICT_ERROR,
 } = require('../lib/errors');
 
-// GET
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.status(SUCCESS_OK).send({ data: users })) // 200
-    .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    res.send(users);
+  } catch (err) {
+    res.send(DEFAULT_ERROR_CODE).send(err);
+  }
 };
 
-const getUserById = (req, res, next) => {
+const getUserById = async (req, res) => {
   const { _id } = req.params;
   User.findById(_id)
-    .orFail(() => next(new NotFoundError('User not found'))) // 404
-    .then((user) => {
-      res.status(SUCCESS_OK).send({ data: user }); // 200
-    })
+    .orFail()
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new BadRequestError('Invalid user')); // 400
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
-      if (err instanceof NotFoundError) {
-        return next(err); // 404
-      }
-      return next(new DEFAULT_ERROR_CODE(err.message)); // 500
     });
-};
-
-// GET
-const getUser = (req, res, next) => {
-  const { _id } = req.params;
-  if (!ObjectId.isValid(_id)) {
-    return next(new BadRequestError('Invalid user ID')); // 400
-  }
-  return getUserById(_id, res, req, next);
-};
-
-const getCurrentUser = (req, res, next) => {
-  getUserById(req.user.id, res, req, next);
 };
 
 const createUser = (req, res, next) => {
@@ -67,7 +49,7 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ConflictError('Email already exists');
+        throw new CONFLICT_ERROR('Email already exists');
       }
       return bcrypt.hash(password, 10);
     })
@@ -82,77 +64,76 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError(err.message));
+        next(new ERROR_CODE(err.message));
       } else {
         next(err);
       }
     });
 };
 
-const updateUser = (req, res, next) => {
-  const { name, about } = req.body;
+const updateUser = (req, res) => {
   const { _id } = req.user;
-  processUserWithId(
-    req,
-    res,
-    User.findByIdAndUpdate(
-      _id,
-      { name, about },
-      { runValidators: true, new: true },
-    ),
-    next,
-  );
+  User.findByIdAndUpdate(
+    _id,
+    { name: req.body.name, about: req.body.about },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
 
-const updateAvatar = (req, res, next) => {
+const updateAvatar = (req, res) => {
   const { _id } = req.user;
-  const { avatar } = req.body;
-  processUserWithId(
-    req,
-    res,
-    User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true }),
-    next,
-  );
+  User.findByIdAndUpdate(
+    _id,
+    { avatar: req.body.avatar },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
-
-// const getCurrentUser = (req, res, next) => {
-//   const { _id } = req.user;
-//   User.findById(_id)
-//     .orFail()
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       if (err.name === 'DocumentNotFoundError') {
-//         throw new NotFoundError(err.message);
-//       } else if (err.name === 'CastError') {
-//         throw new BadRequestError(err.message);
-//       }
-//     })
-//     .catch(next);
-// };
 
 const login = (req, res, next) => {
-  const { password, email } = req.body;
+  const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'secret-something', {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
       });
-      // eslint-disable-next-line no-shadow
       res.send({ data: user.toJSON(), token });
     })
-    .catch((err) => {
-      throw new Unauthorized(err.message);
-    })
-    .catch(next);
+    .catch(() => {
+      next(new UNAUTHORIZE('Incorrect email or password'));
+    });
 };
 
 module.exports = {
   getUsers,
-  getUser,
   getUserById,
   createUser,
   updateUser,
   updateAvatar,
   login,
-  getCurrentUser,
 };
