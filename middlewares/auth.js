@@ -11,7 +11,7 @@ const auth = (req, res, next) => {
     return next(new Unauthorized('You are not authorized'));
   }
   // eslint-disable-next-line no-console
-  console.log(JWT_SECRET);
+  console.log('This is the JWT', JWT_SECRET);
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {

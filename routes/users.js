@@ -24,7 +24,7 @@ router.get(
 );
 router.get('/me', getCurrentUser);
 
-router.patch('/me', auth, updateUser);
+router.patch('/me', updateUser);
 router.patch(
   '/me/avatar',
   auth,
