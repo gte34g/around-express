@@ -6,6 +6,7 @@ const Unauthorized = require('../errors/Unauthorized');
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
   // eslint-disable-next-line no-console
+  console.log(typeof authorization);
   console.log('This is the auth.js', authorization);
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return next(new Unauthorized('You are not authorized'));
