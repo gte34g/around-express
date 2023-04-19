@@ -45,13 +45,12 @@ const getUserById = (req, res, next) => {
 // GET
 const getUser = (req, res, next) => {
   const { _id } = req.params;
-  console.log(`_id value: ${_id}`);
+  console.log('_id:', _id);
   if (!ObjectId.isValid(_id)) {
-    return next(new BadRequestError("Invalid user ID")); // 400
+    return next(new BadRequestError('Invalid user ID')); // 400
   }
   return getUserById(_id, res, req, next);
 };
-
 
 const getCurrentUser = (req, res, next) => {
   getUserById(req.user._id, res, req, next);
