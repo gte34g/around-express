@@ -77,6 +77,13 @@ const cardValidationId = celebrate({
     cardId: Joi.string().hex().length(24),
   }),
 });
+const validateGetUser = celebrate({
+  params: Joi.object().keys({
+    _id: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
+  }),
+});
 
 module.exports = {
   authValidation,
@@ -89,4 +96,5 @@ module.exports = {
   validateUserId,
   newCardValidation,
   cardValidationId,
+  validateGetUser,
 };
