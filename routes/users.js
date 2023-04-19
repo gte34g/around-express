@@ -9,12 +9,11 @@ const {
 } = require('../controllers/users');
 
 const auth = require('../middlewares/auth');
-const { validateUserId } = require('../middlewares/validation');
+// const { validateUserId } = require('../middlewares/validation');
 
 router.get('/', getUsers);
 router.get(
   '/:_id',
-  validateUserId,
   getUser,
 );
 router.get('/me', getCurrentUser);
