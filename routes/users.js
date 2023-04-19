@@ -12,16 +12,7 @@ const auth = require('../middlewares/auth');
 // const { validateUserId } = require('../middlewares/validation');
 
 router.get('/', getUsers);
-router.get(
-  '/:_id',
-  celebrate({
-    params: Joi.object().keys({
-      _id: Joi.string().required().alphanum().length(24)
-        .hex(),
-    }),
-  }),
-  getUser,
-);
+router.get('/:_id', getUser);
 router.get('/me', getCurrentUser);
 
 router.patch('/me', updateUser);
