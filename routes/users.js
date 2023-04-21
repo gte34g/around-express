@@ -12,8 +12,8 @@ const auth = require('../middlewares/auth');
 const { validateGetUser } = require('../middlewares/validation');
 
 router.get('/', getUsers);
+router.get("/me", getCurrentUser);
 router.get('/:_id', validateGetUser, getUser);
-router.get('/me', getCurrentUser);
 
 router.patch('/me', updateUser);
 router.patch(
