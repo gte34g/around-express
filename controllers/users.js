@@ -29,7 +29,7 @@ const getUserById = (req, res, next) => {
   User.findById(_id)
     .orFail(() => next(new NotFoundError('User not found'))) // 404
     .then((user) => {
-      res.status(SUCCESS_OK).send({ data: user }); // 200
+      res.status(SUCCESS_OK).send(user); // 200
     })
     .catch((err) => {
       if (err.name === 'CastError') {

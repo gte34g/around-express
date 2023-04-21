@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const {
   getUsers,
-  getUser,
+  getUserById,
   updateUser,
   updateAvatar,
   getCurrentUser,
@@ -12,7 +12,7 @@ const auth = require('../middlewares/auth');
 
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
-router.get('/:_id', getUser);
+router.get('/:_id', getUserById);
 
 router.patch('/me', updateUser);
 router.patch(
