@@ -20,7 +20,7 @@ const {
 // GET
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(SUCCESS_OK).send({ data: users })) // 200
+    .then((users) => res.status(SUCCESS_OK).send(users)) // 200
     .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
 };
 
