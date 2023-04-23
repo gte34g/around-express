@@ -49,11 +49,11 @@ const getUser = (req, res, next) => {
   if (!ObjectId.isValid(_id)) {
     return next(new BadRequestError('Invalid user ID')); // 400
   }
-  return getUserById(_id, res, req, next);
+  return getUserById(_id, res, req);
 };
 
 const getCurrentUser = (req, res, next) => {
-  getUserById(req.user._id, res, req, next);
+  getUserById(req.user._id, res, req);
 };
 
 const createUser = (req, res, next) => {
