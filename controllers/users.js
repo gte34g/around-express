@@ -53,7 +53,6 @@ const getUser = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  console.log('Current user ID:', req.user._id);
   getUserById(req.user._id, res, req);
 };
 
