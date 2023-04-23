@@ -25,7 +25,10 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  const { _id } = req.params;
+  const { _id } = req.params || {};
+  if (!_id) {
+    return next(new BadRequestError('Invalid user id')); // 400
+  }
   User.findById(_id)
     .orFail(() => next(new NotFoundError('User not found'))) // 404
     .then((user) => {
