@@ -11,9 +11,10 @@ const processUserWithId = require('../lib/helpers');
 const Unauthorized = require('../errors/Unauthorized');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const NotFoundError = require('../errors/NotFound');
+// const NotFoundError = require('../errors/NotFound');
 const {
-  SUCCESS_OK,
+  ERROR_CODE,
+  NOT_FOUND_ERROR,
   DEFAULT_ERROR_CODE,
   USER_NOT_FOUND,
   INVALID_DATA,
@@ -44,10 +45,9 @@ const getUserById = async (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        const notFoundError = new NotFoundError(USER_NOT_FOUND);
-        res.status(notFoundError.statusCode).send({ Error: notFoundError.message });
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
       } else if (err.name === 'CastError') {
-        res.status(NotFoundError.statusCode).send({ Error: INVALID_DATA });
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
