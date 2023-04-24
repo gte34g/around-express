@@ -15,33 +15,41 @@ const NotFoundError = require('../errors/NotFound');
 const {
   SUCCESS_OK,
   DEFAULT_ERROR_CODE,
+  USER_NOT_FOUND,
+  INVALID_DATA,
+  DEFAULT_ERROR,
 } = require('../lib/errors');
 
 // GET
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.status(SUCCESS_OK).send(users)) // 200
-    .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
+// const getUsers = (req, res, next) => {
+//   User.find({})
+//     .then((users) => res.status(SUCCESS_OK).send(users)) // 200
+//     .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
+// };
+
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    res.send(users);
+  } catch (err) {
+    res.send(DEFAULT_ERROR_CODE).send(err);
+  }
 };
 
-const getUserById = (req, res, next) => {
-  const { _id } = req.params || {};
-  if (!_id) {
-    return next(new BadRequestError('Invalid user id')); // 400
-  }
+const getUserById = async (req, res) => {
+  const { _id } = req.params;
   User.findById(_id)
-    .orFail(() => next(new NotFoundError('User not found'))) // 404
-    .then((user) => {
-      res.status(SUCCESS_OK).send(user); // 200
-    })
+    .orFail()
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new BadRequestError('Invalid user')); // 400
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NotFoundError).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(NotFoundError).send({ Error: INVALID_DATA });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
-      if (err instanceof NotFoundError) {
-        return next(err); // 404
-      }
-      return next(new DEFAULT_ERROR_CODE(err.message)); // 500
     });
 };
 

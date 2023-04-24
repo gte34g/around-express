@@ -4,13 +4,13 @@ const {
   getUsers,
   updateUser,
   updateAvatar,
-  getCurrentUser,
+  getUserById,
 } = require('../controllers/users');
 
 const auth = require('../middlewares/auth');
 
 router.get('/', getUsers);
-router.get('/me', getCurrentUser);
+router.get('/:_id', getUserById);
 
 router.patch('/me', updateUser);
 router.patch(
