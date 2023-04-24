@@ -44,9 +44,10 @@ const getUserById = async (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(NotFoundError).send({ Error: USER_NOT_FOUND });
+        const notFoundError = new NotFoundError(USER_NOT_FOUND);
+        res.status(notFoundError.statusCode).send({ Error: notFoundError.message });
       } else if (err.name === 'CastError') {
-        res.status(NotFoundError).send({ Error: INVALID_DATA });
+        res.status(NotFoundError.statusCode).send({ Error: INVALID_DATA });
       } else {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
