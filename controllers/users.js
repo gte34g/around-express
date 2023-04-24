@@ -36,6 +36,7 @@ const getUsers = async (req, res) => {
   } catch (err) {
     res.send(DEFAULT_ERROR_CODE).send(err);
   }
+  console.log('getUsers:', getUsers);
 };
 
 const getUserById = async (req, res) => {
@@ -52,20 +53,6 @@ const getUserById = async (req, res) => {
         res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
       }
     });
-};
-
-// GET
-const getUser = (req, res, next) => {
-  const { _id } = req.params;
-  console.log('_id:', _id);
-  if (!ObjectId.isValid(_id)) {
-    return next(new BadRequestError('Invalid user ID')); // 400
-  }
-  return getUserById(_id, res, req);
-};
-
-const getCurrentUser = (req, res, next) => {
-  getUserById(req.user._id, res, req);
 };
 
 const createUser = (req, res, next) => {
@@ -123,21 +110,6 @@ const updateAvatar = (req, res, next) => {
   );
 };
 
-// const getCurrentUser = (req, res, next) => {
-//   const { _id } = req.user;
-//   User.findById(_id)
-//     .orFail()
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       if (err.name === 'DocumentNotFoundError') {
-//         throw new NotFoundError(err.message);
-//       } else if (err.name === 'CastError') {
-//         throw new BadRequestError(err.message);
-//       }
-//     })
-//     .catch(next);
-// };
-
 const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -156,11 +128,9 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUser,
   getUserById,
   createUser,
   updateUser,
   updateAvatar,
   login,
-  getCurrentUser,
 };
