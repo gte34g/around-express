@@ -6,7 +6,7 @@ const { ObjectId } = require('mongoose').Types;
 const JWT_SECRET = 'secret-something';
 const User = require('../models/user');
 
-const processUserWithId = require('../lib/helpers');
+// const processUserWithId = require('../lib/helpers');
 
 const Unauthorized = require('../errors/Unauthorized');
 const BadRequestError = require('../errors/BadRequestError');
@@ -74,30 +74,48 @@ const createUser = (req, res, next) => {
     });
 };
 
-const updateUser = (req, res, next) => {
-  const { name, about } = req.body;
+const updateUser = (req, res) => {
   const { _id } = req.user;
-  processUserWithId(
-    req,
-    res,
-    User.findByIdAndUpdate(
-      _id,
-      { name, about },
-      { runValidators: true, new: true },
-    ),
-    next,
-  );
+  User.findByIdAndUpdate(
+    _id,
+    { name: req.body.name, about: req.body.about },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
 
-const updateAvatar = (req, res, next) => {
+const updateAvatar = (req, res) => {
   const { _id } = req.user;
-  const { avatar } = req.body;
-  processUserWithId(
-    req,
-    res,
-    User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true }),
-    next,
-  );
+  User.findByIdAndUpdate(
+    _id,
+    { avatar: req.body.avatar },
+    { runValidators: true, new: true },
+  )
+    .orFail()
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(NOT_FOUND_ERROR).send({ Error: USER_NOT_FOUND });
+      } else if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ Error: INVALID_DATA });
+      } else if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ Error: err.message });
+      } else {
+        res.status(DEFAULT_ERROR_CODE).send({ Error: DEFAULT_ERROR });
+      }
+    });
 };
 
 const login = (req, res, next) => {
