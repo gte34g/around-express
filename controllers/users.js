@@ -29,18 +29,8 @@ const getUsers = (req, res, next) => {
     .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
 };
 
-// const getUsers = async (req, res) => {
-//   try {
-//     const users = await User.find({});
-
-//     res.send(users);
-//   } catch (err) {
-//     res.status(DEFAULT_ERROR_CODE).send(err);
-//   }
-// };
-
 const getUserById = async (req, res) => {
-  const { _id } = req.params;
+  const { _id } = req.user;
   User.findById(_id)
     .orFail()
     .then((user) => res.send(user))
