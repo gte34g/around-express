@@ -40,8 +40,8 @@ const getUsers = (req, res, next) => {
 // };
 
 const getUserById = async (req, res) => {
-  const { _id } = req.user;
-  User.findById({ _id })
+  const { _id } = req.params;
+  User.findById(_id)
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
