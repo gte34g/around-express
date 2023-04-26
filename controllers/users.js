@@ -34,9 +34,8 @@ const getUsers = async (req, res) => {
 
     res.send(users);
   } catch (err) {
-    res.send(DEFAULT_ERROR_CODE).send(err);
+    res.status(DEFAULT_ERROR_CODE).send(err);
   }
-  console.log('getUsers:', getUsers);
 };
 
 const getUserById = async (req, res) => {
