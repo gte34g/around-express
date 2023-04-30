@@ -20,6 +20,7 @@ const noRoute = require('./routes/noRoute');
 // const router = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
 
+mongoose.set('strictQuery', false);
 mongoose.connect('mongodb://localhost:27017/aroundb');
 
 app.use(cors());
