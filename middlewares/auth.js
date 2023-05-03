@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
   // eslint-disable-next-line no-console
   console.log('Authorization header:', authorization);
-  console.log('req.headers:', req.headers);
+  console.log('Auth req.headers:', req.headers);
   console.log(typeof authorization);
   // console.log('This is the auth.js', authorization);
   if (!authorization || !authorization.startsWith('Bearer ')) {
