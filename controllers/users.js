@@ -29,7 +29,7 @@ const getUsers = (req, res, next) => {
     .catch((err) => next(new DEFAULT_ERROR_CODE(err.message))); // 500
 };
 
-const getUserInfo = async (req, res) => {
+const getUserById = async (req, res) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.send(user))
@@ -135,7 +135,7 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUserInfo,
+  getUserById,
   createUser,
   updateUser,
   updateAvatar,
