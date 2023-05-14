@@ -23,6 +23,9 @@ const auth = (req, res, next) => {
     return next(new Unauthorized('You are not authorized'));
   }
   req.user = payload;
+  req.params._id = payload._id;
+
+  console.log(payload);
   return next();
 };
 
